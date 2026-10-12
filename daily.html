@@ -3,7 +3,9 @@
 <script>
   const baseUrl = 'images/';
   const pad = (n) => String(n).padStart(2, '0');
-  const maxDaysBack = 7;
+  const maxDaysBack = 30;
+  // Falls der 14:00-Lauf verspätet war, tragen die nächsten Viertelstunden das Foto
+  const slots = ['1400', '1415', '1430', '1445'];
 
   // Aktuelle Zeit in Europe/Berlin
   const now = new Date();
@@ -16,17 +18,22 @@
 
   const img = document.getElementById('photo1400');
   let daysBack = 0;
+  let slot = 0;
 
   function load() {
     const y = dt.getFullYear();
     const m = pad(dt.getMonth() + 1);
     const d = pad(dt.getDate());
-    img.src = `${baseUrl}image_${y}${m}${d}_1400.jpg`;
+    img.src = `${baseUrl}image_${y}${m}${d}_${slots[slot]}.jpg`;
   }
 
-  // Fehlt das Foto, das vorherige Tagesfoto versuchen
+  // Fehlt das Foto, spätere Viertelstunden, dann das Vortagesfoto versuchen
   img.onerror = () => {
-    if (daysBack < maxDaysBack) {
+    if (slot < slots.length - 1) {
+      slot += 1;
+      load();
+    } else if (daysBack < maxDaysBack) {
+      slot = 0;
       daysBack += 1;
       dt.setDate(dt.getDate() - 1);
       load();

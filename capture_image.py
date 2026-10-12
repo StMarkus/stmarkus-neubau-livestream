@@ -42,7 +42,9 @@ def main() -> int:
         return 0
 
     images_dir.mkdir(parents=True, exist_ok=True)
-    stamp = now.strftime("%Y%m%d_%H%M")
+    # Auf Viertelstunde abrunden, weil geplante Läufe verspätet starten können
+    slot = now.replace(minute=now.minute // 15 * 15, second=0, microsecond=0)
+    stamp = slot.strftime("%Y%m%d_%H%M")
     filename = f"image_{stamp}.jpg"
     target = images_dir / filename
 
