@@ -72,41 +72,30 @@ URL: https://live-neubau.kopten.de/stream.m3u8
 
 ## Fotos auf GitHub Pages
 
-Die Fotos liegen auf dem Branch `gh-pages` (GitHub Pages: Settings → Pages → Branch `gh-pages`, Ordner `/`).
-`daily.html` lädt `images/image_YYYYMMDD_1400.jpg` relativ, z. B.
+Die Fotos liegen auf dem Branch `gh-pages` (Settings → Pages → Branch `gh-pages`, Ordner `/`).
+`daily.html` lädt `images/image_YYYYMMDD_1400.jpg` relativ und fällt bei fehlendem Foto bis zu 7 Tage zurück:
 https://stmarkus.github.io/stmarkus-neubau-livestream/daily.html
 
-### Einrichtung auf dem Server (einmalig)
+Alles läuft in GitHub Actions, es ist kein Server nötig. `daily.html` und `archive_month.py` liegen für Pages
+zusätzlich auf `gh-pages` und müssen dort bei Änderungen mitgezogen werden.
 
-```sh
-# Deploy-Key mit Schreibrechten im Repo hinterlegen, dann:
-git clone --branch gh-pages git@github.com:StMarkus/stmarkus-neubau-livestream.git pages
-cd pages && chmod +x publish_images.sh archive_month.py
-```
+### Secrets und Variablen (Settings → Secrets and variables → Actions)
 
-Der Branch `gh-pages` enthält `daily.html`, `publish_images.sh`, `archive_month.py` und `images/`
-(initial z. B. mit `git checkout --orphan gh-pages` aus `main` erzeugen und die vorhandenen Fotos hinzufügen).
-`capture_image.py` schreibt mit `IMAGES_DIR=/pfad/zu/pages/images` direkt dorthin.
+- Secret `IMAGE_URL`: URL des Kamerabildes
+- Secret `RCLONE_CONFIG`: kompletter Inhalt einer `rclone.conf` mit einem Remote `gdrive` (Google Drive)
+- Variable `DRIVE_REMOTE` (optional): Ziel, default `gdrive:Neubau-Livestream`
 
-### Cron
+### Workflows
 
-```sh
-*/15 6-20 * * * cd /pfad/zu/neubau_livestream && IMAGE_URL=<Kamera-URL> IMAGES_DIR=/pfad/zu/pages/images python3 capture_image.py && /pfad/zu/pages/publish_images.sh
-```
+- `capture.yml`: alle 15 Minuten (06:00-20:00 Berlin) Kamerabild holen und nach `gh-pages` committen.
+  GitHub führt Schedules teils verspätet aus.
+- `archive.yml`: am 1. jedes Monats alle Fotos des Vormonats nach `gdrive:Neubau-Livestream/YYYY-MM/` kopieren,
+  per `rclone check` verifizieren, bis auf das 14:00-Foto aus `images/` entfernen und `gh-pages` als einzelnen
+  Commit neu aufbauen (Force-Push), damit das Repo klein bleibt. Manuell für einen beliebigen Monat startbar
+  (Actions → Archive month to Google Drive → Run workflow, z. B. `2026-02`).
 
-### Monatsarchiv in Google Drive
-
-Einmalig `rclone config` (Remote `gdrive`, Typ Google Drive) auf dem Server ausführen.
-Am 1. jedes Monats werden alle Fotos des Vormonats nach `gdrive:Neubau-Livestream/YYYY-MM/` kopiert,
-per `rclone check` verifiziert, bis auf das 14:00-Foto aus `images/` entfernt und der Branch `gh-pages`
-als einzelner Commit neu aufgebaut (Force-Push), damit das Repo klein bleibt:
-
-```sh
-30 21 1 * * cd /pfad/zu/pages && python3 archive_month.py
-```
-
-Test: `python3 archive_month.py --month 2026-02 --dry-run`. Ziel per `DRIVE_REMOTE` änderbar.
 Ein Monat mit ~1.500 Fotos sind ca. 800 MB, das 1-GB-Limit von Pages reicht also genau einen Monat.
+
 
 ## OAuth for YouTube uploads (optional)
 

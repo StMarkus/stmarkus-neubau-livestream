@@ -1,0 +1,48 @@
+name: Capture image
+
+on:
+  schedule:
+    # UTC; capture_image.py selbst filtert auf 06:00-20:00 Europe/Berlin
+    - cron: "*/15 4-19 * * *"
+  workflow_dispatch:
+
+# Alle Schreibzugriffe auf gh-pages nacheinander
+concurrency:
+  group: gh-pages-write
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: daily.html
+          sparse-checkout-cone-mode: false
+
+      - run: python3 -m pip install -r requirements.txt
+
+      - name: Capture
+        env:
+          IMAGE_URL: ${{ secrets.IMAGE_URL }}
+          IMAGES_DIR: pages/images
+        run: python3 capture_image.py
+
+      - name: Publish
+        working-directory: pages
+        run: |
+          git add --sparse images
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "Add images $(date -u +%Y%m%d_%H%M)"
+          git push origin gh-pages
