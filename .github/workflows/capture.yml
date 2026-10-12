@@ -3,7 +3,7 @@ name: Capture image
 on:
   schedule:
     # UTC; capture_image.py selbst filtert auf 06:00-20:00 Europe/Berlin
-    - cron: "*/15 4-19 * * *"
+    - cron: "2,17,32,47 4-19 * * *"
   workflow_dispatch:
 
 # Alle Schreibzugriffe auf gh-pages nacheinander

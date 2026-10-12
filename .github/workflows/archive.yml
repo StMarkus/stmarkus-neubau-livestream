@@ -2,7 +2,7 @@ name: Archive month to Google Drive
 
 on:
   schedule:
-    - cron: "30 3 1 * *"
+    - cron: "37 3 1 * *"
   workflow_dispatch:
     inputs:
       month:
