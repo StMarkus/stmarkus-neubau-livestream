@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Neubau Stream</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f7f4ef;
+        --ink: #1c1b18;
+        --muted: #6d6a63;
+        --accent: #d88b5a;
+        --accent-dark: #8b4a2f;
+        --panel: #fff9f0;
+        --shadow: 0 24px 60px rgba(28, 27, 24, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 0;
+        color: var(--ink);
+        background: radial-gradient(1200px 600px at 10% 0%, #fff1dc, transparent),
+          radial-gradient(800px 800px at 90% 10%, #f3e3d2, transparent),
+          var(--bg);
+        min-height: 100vh;
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 36px 24px 64px;
+      }
+
+      .header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .logo {
+        width: 86px;
+        height: 86px;
+        border-radius: 18px;        
+        display: grid;
+        place-items: center;
+        
+        overflow: hidden;
+      }
+
+      .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      h1 {
+        font-family: "Fraunces", serif;
+        font-size: clamp(28px, 4vw, 44px);
+        margin: 0;
+      }
+
+      .sub {
+        color: var(--muted);
+        margin-top: 6px;
+        font-size: 15px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+        gap: 24px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      video {
+        width: 100%;
+        height: auto;
+        background: #000;
+        border-radius: 14px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff0e4;
+        color: var(--accent-dark);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 6px rgba(216, 139, 90, 0.15);
+      }
+
+      .note {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .card-title {
+        font-weight: 600;
+        margin: 0 0 8px;
+      }
+
+      .meta {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .cta {
+        margin-top: 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #fff;
+        background: var(--accent);
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+      }
+
+      .cta:hover {
+        background: #c77748;
+      }
+
+      .fade-in {
+        animation: fade 0.8s ease-out;
+      }
+
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap fade-in">
+      <div class="header">
+        <div class="logo">
+          <img src="logo.png" alt="Logo" />
+        </div>
+        <div>
+          <h1>Livestream Neubau</h1>
+          <div class="sub">St. Markus Kirche, Bauprojekt</div>
+        </div>
+        <div class="badge" aria-live="polite">
+          <span class="dot"></span>
+          Update alle 15 Minuten
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="panel">
+          <video id="player" controls></video>
+          <div class="note">
+            Wenn das Video nicht startet, Seite neu laden.
+          </div>
+        </div>
+        <div class="panel">
+          <p class="card-title">Stream-Info</p>
+          <ul class="meta">
+            <li>Quelle: Live-Kamera am Bauprojekt</li>
+            <li>Zeitraum: Mo-So, 06:00-20:00</li>
+            <li>Format: HLS (.m3u8 + Segmente)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+      const video = document.getElementById('player');
+      const src = 'https://live-neubau.kopten.de/stream.m3u8';
+
+      const seekToEnd = () => {
+        if (Number.isFinite(video.duration) && video.duration > 0) {
+          video.currentTime = Math.max(0, video.duration - 0.1);
+        }
+      };
+
+      if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls({
+          lowLatencyMode: false,
+          enableWorker: true,
+        });
+        hls.loadSource(src);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.LEVEL_LOADED, seekToEnd);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = src; // Safari
+      } else {
+        video.outerHTML = '<p>Dein Browser unterstuetzt HLS nicht.</p>';
+      }
+
+      video.addEventListener('loadedmetadata', seekToEnd);
+    </script>
+  </body>
+</html>

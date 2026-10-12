@@ -1,0 +1,22 @@
+# Google OAuth Credentials
+client_secret.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# HLS Stream files
+*.m3u8
+*.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

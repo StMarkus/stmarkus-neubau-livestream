@@ -1,0 +1,22 @@
+<img id="photo1400" alt="Foto 14:00 Uhr" style="max-width:100%;height:auto;">
+
+<script>
+  const baseUrl = 'images/';
+  const pad = (n) => String(n).padStart(2, '0');
+
+  // Aktuelle Zeit in Europe/Berlin
+  const now = new Date();
+  const dt = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Berlin' }));
+
+  // Falls vor 14:00 Uhr → Datum um einen Tag zurücksetzen
+  if (dt.getHours() < 14) {
+    dt.setDate(dt.getDate() - 1);
+  }
+
+  const y = dt.getFullYear();
+  const m = pad(dt.getMonth() + 1);
+  const d = pad(dt.getDate());
+
+  const fileName = `image_${y}${m}${d}_1400.jpg`;
+  document.getElementById('photo1400').src = baseUrl + fileName;
+</script>

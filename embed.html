@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Livestream</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="player" controls></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+      const video = document.getElementById('player');
+      const src = 'https://live-neubau.kopten.de/stream.m3u8';
+
+      const seekToEnd = () => {
+        if (Number.isFinite(video.duration) && video.duration > 0) {
+          video.currentTime = Math.max(0, video.duration - 0.1);
+        }
+      };
+
+      if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls({
+          lowLatencyMode: false,
+          enableWorker: true,
+        });
+        hls.loadSource(src);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.LEVEL_LOADED, seekToEnd);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = src; // Safari
+      } else {
+        video.outerHTML = '<p>Dein Browser unterstuetzt HLS nicht.</p>';
+      }
+
+      video.addEventListener('loadedmetadata', seekToEnd);
+    </script>
+  </body>
+</html>
