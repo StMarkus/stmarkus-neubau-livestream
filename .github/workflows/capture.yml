@@ -40,6 +40,8 @@ jobs:
       - name: Publish
         working-directory: pages
         run: |
+          # Außerhalb des Zeitfensters (oder bei vorhandenem Foto) gibt es nichts zu committen
+          [ -d images ] || exit 0
           git add --sparse images
           git diff --cached --quiet && exit 0
           git config user.name "github-actions[bot]"
