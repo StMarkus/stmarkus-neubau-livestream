@@ -1,0 +1,8 @@
+{
+  "name": "neubau-capture-trigger",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  // UTC; capture_image.py filtert zusätzlich auf 07:00-20:00 Europe/Berlin
+  "triggers": { "crons": ["2,17,32,47 5-19 * * *"] },
+  "observability": { "enabled": true }
+}

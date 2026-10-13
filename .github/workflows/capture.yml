@@ -2,7 +2,7 @@ name: Capture image
 
 on:
   schedule:
-    # UTC; capture_image.py selbst filtert auf 06:00-20:00 Europe/Berlin
+    # UTC; capture_image.py selbst filtert auf 07:00-20:00 Europe/Berlin
     - cron: "2,17,32,47 4-19 * * *"
   workflow_dispatch:
 
@@ -35,6 +35,7 @@ jobs:
         env:
           IMAGE_URL: ${{ secrets.IMAGE_URL }}
           IMAGES_DIR: pages/images
+          START_HOUR: "7"
         run: python3 capture_image.py
 
       - name: Publish

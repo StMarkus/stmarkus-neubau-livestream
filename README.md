@@ -85,10 +85,23 @@ zusätzlich auf `gh-pages` und müssen dort bei Änderungen mitgezogen werden.
 - Secret `RCLONE_CONFIG`: kompletter Inhalt einer `rclone.conf` mit einem Remote `gdrive` (Google Drive)
 - Variable `DRIVE_REMOTE` (optional): Ziel, default `gdrive:Neubau-Livestream`
 
+### Cloudflare Worker (Auslöser für capture.yml)
+
+`worker/` enthält einen Cloudflare Worker mit Cron Trigger, der `capture.yml` per GitHub-API startet.
+Einrichtung:
+
+```sh
+cd worker
+npx wrangler login
+npx wrangler secret put GITHUB_TOKEN   # Fine-grained PAT, nur dieses Repo, Actions: Read and write
+npx wrangler deploy
+```
+
 ### Workflows
 
-- `capture.yml`: alle 15 Minuten (06:00-20:00 Berlin) Kamerabild holen und nach `gh-pages` committen.
-  GitHub führt Schedules teils verspätet aus.
+- `capture.yml`: alle 15 Minuten (07:00-20:00 Berlin, Zeitfenster der Kamera) Kamerabild holen und nach `gh-pages`
+  committen. Ausgelöst wird er vom Cloudflare Worker in `worker/` (pünktlich), der `schedule`-Eintrag im Workflow
+  dient nur als Zusatz, weil GitHub-Zeitpläne teils stark verzögert oder gar nicht laufen.
 - `archive.yml`: am 1. jedes Monats alle Fotos des Vormonats nach `gdrive:Neubau-Livestream/YYYY-MM/` kopieren,
   per `rclone check` verifizieren, bis auf das 14:00-Foto aus `images/` entfernen und `gh-pages` als einzelnen
   Commit neu aufbauen (Force-Push), damit das Repo klein bleibt. Manuell für einen beliebigen Monat startbar
