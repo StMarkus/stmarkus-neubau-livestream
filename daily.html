@@ -1,0 +1,44 @@
+<img id="photo1400" alt="Foto 14:00 Uhr" style="max-width:100%;height:auto;">
+
+<script>
+  const baseUrl = 'images/';
+  const pad = (n) => String(n).padStart(2, '0');
+  const maxDaysBack = 30;
+  // Falls der 14:00-Lauf verspätet war, tragen die nächsten Viertelstunden das Foto
+  const slots = ['1400', '1415', '1430', '1445'];
+
+  // Aktuelle Zeit in Europe/Berlin
+  const now = new Date();
+  const dt = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Berlin' }));
+
+  // Falls vor 14:00 Uhr → Datum um einen Tag zurücksetzen
+  if (dt.getHours() < 14) {
+    dt.setDate(dt.getDate() - 1);
+  }
+
+  const img = document.getElementById('photo1400');
+  let daysBack = 0;
+  let slot = 0;
+
+  function load() {
+    const y = dt.getFullYear();
+    const m = pad(dt.getMonth() + 1);
+    const d = pad(dt.getDate());
+    img.src = `${baseUrl}image_${y}${m}${d}_${slots[slot]}.jpg`;
+  }
+
+  // Fehlt das Foto, spätere Viertelstunden, dann das Vortagesfoto versuchen
+  img.onerror = () => {
+    if (slot < slots.length - 1) {
+      slot += 1;
+      load();
+    } else if (daysBack < maxDaysBack) {
+      slot = 0;
+      daysBack += 1;
+      dt.setDate(dt.getDate() - 1);
+      load();
+    }
+  };
+
+  load();
+</script>
